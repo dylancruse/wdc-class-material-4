@@ -11,7 +11,7 @@ PYTHONPATH=$(PROJECT_NAME)
 DJANGO_SETTINGS=$(PROJECT_NAME).settings
 
 # django-command = django-admin $(1) $(HOST):$(PORT) --settings $(DJANGO_SETTINGS) --pythonpath $(PYTHONPATH)
-django-command = django-admin $(1) $(2) --settings $(DJANGO_SETTINGS) --pythonpath $(PYTHONPATH)
+django-command = django-admin $(1) $(2) $(3) --settings $(DJANGO_SETTINGS) --pythonpath $(PYTHONPATH)
 
 runserver:
 	@echo $(TAG)Running Server $(END)
@@ -25,9 +25,17 @@ migrate:
 	@echo $(TAG)Migrating Database$(END)
 	$(call django-command, migrate)
 
+showmigrations:
+	@echo $(TAG)Creating Migrations$(END)
+	$(call django-command, showmigrations)
+
 makemigrations:
 	@echo $(TAG)Creating Migrations$(END)
 	$(call django-command, makemigrations)
+
+datamigration:
+	@echo $(TAG)Creating Migrations$(END)
+	$(call django-command, makemigrations, --empty, sample_app)
 
 createsuperuser:
 	@echo $(TAG)Create Superuser$(END)
