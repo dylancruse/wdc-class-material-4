@@ -6,17 +6,34 @@ from django.urls import reverse
 from django.contrib import messages
 
 from .models import Author, Book
+from .forms import BookForm
 
 
 def index(request):
+    if request.method == 'POST':
+        form = BookForm(request.POST)
+        if form.is_valid():
+            new_book = Book.objects.create(
+                title=form.cleaned_data['title'],
+                author=Author.objects.filter(name=form.cleaned_data['author'])[0],
+                isbn=form.cleaned_data['isbn'],
+                popularity=form.cleaned_data['popularity']
+            )
+            messages.success(request, '{} created'.format(new_book.title))
+    else:
+        form = BookForm()
     sort_method = request.GET.get('sort', 'asc')
     books = Book.objects.all()
-    # if sort_method == 'asc':
-    #     books = books.order_by('popularity')
-    # elif sort_method == 'desc':
-    #     books = books.order_by('-popularity')
+    if sort_method == 'asc':
+        books = books.order_by('popularity')
+    elif sort_method == 'desc':
+        books = books.order_by('-popularity')
+    q = request.GET.get('q')
+    if q:
+        books = books.filter(title__icontains=q)
     return render(request, 'index.html', {
         'books': books,
+        'form': form,
         'authors': Author.objects.all(),
         'sort_method': sort_method
     })
